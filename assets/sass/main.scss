@@ -8,16 +8,6 @@ header {
     padding: 10px 20px;
     border-bottom: 1px solid #ddd;
 
-    .logo {
-        width: 200px;
-        height: 60px;
-        font-size: 1.5em;
-        font-weight: bold;
-        background-image: url(../img/22116270_1114.jpg);
-        background-size: 120%;
-        background-position: center;
-    }
-
     nav ul {
         list-style: none;
         padding: 0;
@@ -33,6 +23,14 @@ header {
     a {
         text-decoration: none;
         color: #333
+    }
+}
+
+.logo {
+    width: 220px;
+
+    img {
+        width: 100%;
     }
 }
 
@@ -52,16 +50,17 @@ header {
         width: 50%;
         height: 100%;
         background-position: center;
+        background-size: contain;
+        background-repeat: no-repeat;
     }
 
+
     .box-content-img-home {
-        background-image: url(../img/14241043_49_Eagle.svg);
-        background-size: 230%;
+        background-image: url(../img/bg-shero1.webp);
     }
 
     .box-content-img-2 {
-        background-image: url(../img/31530356_bird_2.svg);
-        background-size: 150%;
+        background-image: url(../img/bg-shero2.webp);
     }
 
     .box-text h2 {

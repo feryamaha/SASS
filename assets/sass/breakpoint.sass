@@ -1,17 +1,19 @@
 @media (max-width: 1024px)
 
-    nav
+    nav, button
         display: none
 
     .grid-container
         padding: 32px
         flex-direction: column
+        border-bottom: solid #000 1px
 
     .box-content-img-home, .box-content-img-2
         width: 100%
-        height: 500px
-        background-size: 100%
         background-repeat: no-repeat
+
+        .box-content-img-home
+            background-size: cover
 
     .s-hero .box-text
         h2
