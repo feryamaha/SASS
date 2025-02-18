@@ -20,6 +20,9 @@
   .s-hero .box-text p {
     font-size: 24px;
   }
+  .sh-1 {
+    padding-top: 80px;
+  }
   .sh-3 .grid-container {
     display: grid !important;
     grid-template-columns: 1fr !important;
