@@ -1,8 +1,13 @@
 .cta-button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  padding: 1rem;
+  background-color: #8B0000;
+  color: #fff;
+  border-radius: 0.5rem;
+  transition: transform 0.3s ease-in-out, color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+.cta-button:hover {
+  transform: translateY(-1px);
+}
+.cta-button:hover:active {
+  transform: translateY(0);
 }/*# sourceMappingURL=button.css.map */

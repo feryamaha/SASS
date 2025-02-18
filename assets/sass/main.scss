@@ -1,15 +1,18 @@
 @import 'grid';
 @import 'button';
+@import 'variables';
 
 header {
+    position: fixed;
+    background-color: $color-white ;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid $color-green;
 
     nav ul {
-        list-style: none;
         padding: 0;
         margin: 0;
         display: flex;
@@ -21,13 +24,18 @@ header {
     }
 
     a {
-        text-decoration: none;
-        color: #333
+        color: $color-black;
+        font-size: 2rem;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: $color-gray;
+        }
     }
 }
 
 .logo {
-    width: 220px;
+    width: 300px;
 
     img {
         width: 100%;
@@ -54,7 +62,6 @@ header {
         background-repeat: no-repeat;
     }
 
-
     .box-content-img-home {
         background-image: url(../img/bg-shero1.webp);
     }
@@ -63,15 +70,145 @@ header {
         background-image: url(../img/bg-shero2.webp);
     }
 
+    .box-content-img-3,
+    .box-content-img-4,
+    .box-content-img-5,
+    .box-content-img-6 {
+        width: 42rem;
+        height: 40rem;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .box-content-img-3 {
+        background-image: url(../img/bg-shero3.webp);
+    }
+
+    .box-content-img-4 {
+        background-image: url(../img/bg-shero4.webp);
+    }
+
+    .box-content-img-5 {
+        background-image: url(../img/bg-shero5.webp);
+    }
+
+    .box-content-img-6 {
+        background-image: url(../img/bg-shero6.webp);
+    }
+
     .box-text h2 {
-        font-size: 72px;
+        font-size: 7.2rem;
         color: red;
     }
 
     .box-text p {
-        font-size: 48px;
+        font-size: 4.8rem;
         color: green
     }
 }
 
+
+.sh-3 {
+    height: max-content;
+
+    .grid-container {
+        height: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 10rem;
+        justify-items: center;
+        align-items: center;
+    }
+}
+
+.sh-4 {
+    height: 1080px;
+    background-image: url(../img/bg-shero7.webp);
+    background-size: cover;
+    background-position: left center;
+    background-repeat: no-repeat
+}
+
+footer {
+    background-color: $color-light-green;
+    color: $color-dark-gray;
+    padding: 4rem 2rem;
+
+    .footer-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .footer-logo img {
+        width: 150px;
+    }
+
+    .footer-social a {
+        margin: 0 10px;
+
+        img {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    .footer-contact,
+    .footer-credits,
+    .footer-newsletter {
+        flex: 1 1 200px;
+
+        h3 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        p,
+        a {
+            font-size: 1.4rem;
+            color: $color-gray;
+        }
+
+    }
+
+    .footer-newsletter form {
+        display: flex;
+        flex-direction: column;
+
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: $color-light-blue;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+
+            &:hover {
+                background-color: $color-lightest-blue;
+                color: $color-black;
+            }
+        }
+    }
+
+    .footer-copyright {
+        text-align: center;
+        width: 100%;
+        margin-top: 20px;
+
+        p {
+            font-size: 1.2rem;
+        }
+    }
+}
+
 @import 'breakpoint';
+@import 'reset';
