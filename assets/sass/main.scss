@@ -4,6 +4,7 @@
 
 header {
     position: fixed;
+    z-index: 3000;
     background-color: $color-white ;
     width: 100%;
     display: flex;
@@ -42,9 +43,6 @@ header {
     }
 }
 
-
-
-
 .s-hero {
     display: flex;
     align-items: center;
@@ -63,9 +61,11 @@ header {
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
+        transition: filter 0.95s ease, transform 0.95s ease;
     }
 
     .box-content-img-home {
+
         background-image: url(../img/bg-shero1.webp);
     }
 
@@ -77,8 +77,8 @@ header {
     .box-content-img-4,
     .box-content-img-5,
     .box-content-img-6 {
-        width: 40rem;
-        height: 38rem;
+        width: 30rem;
+        height: 28rem;
         background-size: 90%;
         background-position: center;
         background-repeat: no-repeat;
@@ -101,11 +101,13 @@ header {
     }
 
     .box-text h2 {
+        transition: color .4s ease;
         font-size: 7.2rem;
         color: red;
     }
 
     .box-text p {
+        transition: color .4s ease;
         font-size: 4.8rem;
         color: green
     }
@@ -113,16 +115,39 @@ header {
 
 
 .sh-3 {
+    width: 100%;
     height: max-content;
+    overflow: hidden;
 
     .grid-container {
+        width: 100%;
         height: 100%;
-/*         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(2, 1fr); */
         gap: 10rem;
         justify-items: center;
         align-items: center;
+        overflow: hidden;
+    }
+
+    .wrapper-box {
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+    }
+
+    .wrapper-box h2,
+    .wrapper-box p {
+        font-size: 2rem;
+    }
+
+    .wrapper-box h2 {
+        margin-top: 1rem;
+    }
+
+    .wrapper-box p {
+        padding: 1%;
     }
 }
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
     <link rel="stylesheet" href="./assets/sass/main.css" />
   </head>
   <body>
@@ -34,13 +34,24 @@
           <h2>Hero Section 1</h2>
           <p id="text">This is the first hero section.</p>
         </div>
-        <div class="box-content-img-home"></div>
+        <div
+          class="box-content-img-home"
+          data-aos="fade-right"
+          data-aos-offset="300"
+          data-aos-easing="ease-in-sine"
+        ></div>
       </div>
     </section>
 
     <section class="s-hero sh-2">
       <div class="grid-container">
-        <div class="box-content-img-2"></div>
+        <div
+          class="box-content-img-2"
+          data-aos="fade-left"
+          data-aos-anchor="#example-anchor"
+          data-aos-offset="500"
+          data-aos-duration="500"
+        ></div>
         <div class="box-text">
           <h2>Hero Section 2</h2>
           <p>This is the second hero section.</p>
@@ -50,10 +61,46 @@
 
     <section class="s-hero sh-3">
       <div class="grid-container">
-        <div class="box-content-img-3"></div>
-        <div class="box-content-img-4"></div>
-        <div class="box-content-img-5"></div>
-        <div class="box-content-img-6"></div>
+        <div class="wrapper-box">
+          <div
+            class="box-content-img-3"
+            data-aos="flip-left"
+            data-aos-easing="ease-out-cubic"
+            data-aos-duration="2000"
+          ></div>
+          <h2>LOREM IPSUM COLOR.</h2>
+          <p id="text">Lorem ipsum, error minus quo odit necessitatibus!</p>
+        </div>
+        <div class="wrapper-box">
+          <div
+            class="box-content-img-4"
+            data-aos="flip-left"
+            data-aos-easing="ease-out-cubic"
+            data-aos-duration="2000"
+          ></div>
+          <h2>LOREM IPSUM COLOR.</h2>
+          <p id="text">Lorem ipsum, error minus quo odit necessitatibus!</p>
+        </div>
+        <div class="wrapper-box">
+          <div
+            class="box-content-img-5"
+            data-aos="flip-left"
+            data-aos-easing="ease-out-cubic"
+            data-aos-duration="2000"
+          ></div>
+          <h2>LOREM IPSUM COLOR.</h2>
+          <p id="text">Lorem ipsum, error minus quo odit necessitatibus!</p>
+        </div>
+        <div class="wrapper-box">
+          <div
+            class="box-content-img-6"
+            data-aos="flip-left"
+            data-aos-easing="ease-out-cubic"
+            data-aos-duration="2000"
+          ></div>
+          <h2>LOREM IPSUM COLOR.</h2>
+          <p id="text">Lorem ipsum, error minus quo odit necessitatibus!</p>
+        </div>
       </div>
     </section>
 
@@ -112,5 +159,8 @@
     </footer>
   </body>
 </html>
-
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init();
+</script>
 <script src="./assets/script/main.js"></script>

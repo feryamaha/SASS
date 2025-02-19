@@ -25,6 +25,7 @@
 
 header {
   position: fixed;
+  z-index: 3000;
   background-color: #fff;
   width: 100%;
   display: flex;
@@ -75,6 +76,7 @@ header a:hover {
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
+  transition: filter 0.95s ease, transform 0.95s ease;
 }
 .s-hero .box-content-img-home {
   background-image: url(../img/bg-shero1.webp);
@@ -86,8 +88,8 @@ header a:hover {
 .s-hero .box-content-img-4,
 .s-hero .box-content-img-5,
 .s-hero .box-content-img-6 {
-  width: 40rem;
-  height: 38rem;
+  width: 30rem;
+  height: 28rem;
   background-size: 90%;
   background-position: center;
   background-repeat: no-repeat;
@@ -105,25 +107,46 @@ header a:hover {
   background-image: url(../img/bg-shero6.webp);
 }
 .s-hero .box-text h2 {
+  transition: color 0.4s ease;
   font-size: 7.2rem;
   color: red;
 }
 .s-hero .box-text p {
+  transition: color 0.4s ease;
   font-size: 4.8rem;
   color: green;
 }
 
 .sh-3 {
+  width: 100%;
   height: max-content;
+  overflow: hidden;
 }
 .sh-3 .grid-container {
+  width: 100%;
   height: 100%;
-  /*         display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          grid-template-rows: repeat(2, 1fr); */
   gap: 10rem;
   justify-items: center;
   align-items: center;
+  overflow: hidden;
+}
+.sh-3 .wrapper-box {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+.sh-3 .wrapper-box h2,
+.sh-3 .wrapper-box p {
+  font-size: 2rem;
+}
+.sh-3 .wrapper-box h2 {
+  margin-top: 1rem;
+}
+.sh-3 .wrapper-box p {
+  padding: 1%;
 }
 
 .sh-4 {
@@ -278,10 +301,6 @@ header a:hover #Ct-button {
   display: none;
 }
 
-/*     .menu.active #Ct-button
- * display: block
- * margin-top: auto
- * padding: 15px 5px */ 
 @media (max-width: 600px) {
   header {
     width: 100%;
