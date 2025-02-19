@@ -42,6 +42,9 @@ header {
     }
 }
 
+
+
+
 .s-hero {
     display: flex;
     align-items: center;
@@ -74,10 +77,11 @@ header {
     .box-content-img-4,
     .box-content-img-5,
     .box-content-img-6 {
-        width: 42rem;
-        height: 40rem;
-        background-size: cover;
+        width: 40rem;
+        height: 38rem;
+        background-size: 90%;
         background-position: center;
+        background-repeat: no-repeat;
     }
 
     .box-content-img-3 {
@@ -113,9 +117,9 @@ header {
 
     .grid-container {
         height: 100%;
-        display: grid;
+/*         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr); */
         gap: 10rem;
         justify-items: center;
         align-items: center;

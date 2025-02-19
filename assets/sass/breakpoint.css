@@ -1,7 +1,10 @@
+/* -- breakpoint list --*/
+/* 280, 320, 360, 414, 480, 576, 600 ,768 */
+#menu-square {
+  display: none;
+}
+
 @media (max-width: 1024px) {
-  nav, button {
-    display: none;
-  }
   .grid-container {
     padding: 32px;
     flex-direction: column;
@@ -23,10 +26,74 @@
   .sh-1 {
     padding-top: 80px;
   }
-  .sh-3 .grid-container {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto !important;
-    gap: 1rem !important;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+}
+header #menu-toggle, header #Ct-button {
+  display: none;
+}
+header #menu-square {
+  display: block;
+  position: relative;
+  z-index: 1001;
+  cursor: pointer;
+}
+header .menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  background-color: #9370DB;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  z-index: 1000;
+  height: 320px;
+  width: 220px;
+  overflow-y: auto;
+  border-bottom-left-radius: 40%;
+}
+header.active {
+  display: flex;
+}
+header li {
+  margin: 10px 0;
+}
+header a {
+  font-size: 2.4rem;
+  color: #fff;
+  transition: color 0.3s ease;
+}
+header a:hover #Ct-button {
+  display: none;
+}
+
+/*     .menu.active #Ct-button
+ * display: block
+ * margin-top: auto
+ * padding: 15px 5px */ 
+@media (max-width: 600px) {
+  header {
+    width: 100%;
+    min-width: 100%;
+    justify-content: space-between;
+  }
+  .box-content-img-3,
+  .box-content-img-4,
+  .box-content-img-5,
+  .box-content-img-6 {
+    background-size: 75%;
+    background-position: left;
+    width: 80%;
+  }
+}
+@media screen and (min-width: 280px) and (max-width: 600px) {
+  .s-hero .box-text h2 {
+    font-size: 3.2rem;
+  }
+  .s-hero .box-text p {
+    font-size: 2rem;
   }
 }/*# sourceMappingURL=breakpoint.css.map */
