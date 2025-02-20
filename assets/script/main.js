@@ -245,8 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configurações iniciais
     const gridContainer = document.querySelector('.grid-container');
     const circleRadius = 64; // Metade de 8rem (128px)
-    const maxWidth = gridContainer.offsetWidth - circleRadius * 2; // Largura do grid-container
-    const maxHeight = gridContainer.offsetHeight - circleRadius * 2; // Altura do grid-container
+    const maxWidth = gridContainer.offsetWidth - circleRadius * 2;
+    const maxHeight = gridContainer.offsetHeight - circleRadius * 2;
 
     // Lista de esferas com IDs fixos
     const circles = [
@@ -293,10 +293,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     spheres.forEach(sphere => {
         sphere.element.style.backgroundColor = sphere.color;
-        sphere.element.style.cursor = 'pointer';
+        sphere.element.style.cursor = 'pointer'; // Para desktop
         sphere.element.style.pointerEvents = 'auto';
         sphere.element.style.position = 'absolute';
-        sphere.element.style.zIndex = '1000'; // Alta prioridade
+        sphere.element.style.zIndex = '1000';
         sphere.element.style.transform = `translate(${sphere.x}px, ${sphere.y}px)`;
     });
 
@@ -333,55 +333,103 @@ document.addEventListener('DOMContentLoaded', () => {
         sphere2.element.style.backgroundColor = sphere2.color;
     }
 
-    // Eventos de arrastar
+    // Função para iniciar o arrastar (mouse ou toque)
+    function startDragging(sphere, x, y) {
+        sphere.isDragging = true;
+        sphere.isPaused = true;
+        sphere.lastX = x;
+        sphere.lastY = y;
+        sphere.lastTime = performance.now();
+        sphere.color = getRandomColor();
+        sphere.element.style.backgroundColor = sphere.color;
+    }
+
+    // Função para mover enquanto arrasta (mouse ou toque)
+    function moveDragging(sphere, x, y) {
+        if (sphere.isDragging) {
+            const deltaX = x - sphere.lastX;
+            const deltaY = y - sphere.lastY;
+
+            sphere.x = Math.max(0, Math.min(sphere.x + deltaX, maxWidth));
+            sphere.y = Math.max(0, Math.min(sphere.y + deltaY, maxHeight));
+
+            sphere.lastX = x;
+            sphere.lastY = y;
+        }
+    }
+
+    // Função para finalizar o arrastar (mouse ou toque)
+    function stopDragging(sphere, x, y) {
+        if (sphere.isDragging) {
+            sphere.isDragging = false;
+            sphere.isPaused = false;
+
+            const currentTime = performance.now();
+            const timeDelta = (currentTime - sphere.lastTime) / 1000;
+            const deltaX = x - sphere.lastX;
+            const deltaY = y - sphere.lastY;
+
+            sphere.vx = (deltaX / timeDelta) * 0.05;
+            sphere.vy = (deltaY / timeDelta) * 0.05;
+
+            sphere.vx = Math.max(-10, Math.min(10, sphere.vx));
+            sphere.vy = Math.max(-10, Math.min(10, sphere.vy));
+
+            sphere.lastTime = 0;
+        }
+    }
+
+    // Eventos de mouse
     spheres.forEach(sphere => {
         sphere.element.addEventListener('mousedown', (e) => {
-            sphere.isDragging = true;
-            sphere.isPaused = true;
-            sphere.lastX = e.clientX;
-            sphere.lastY = e.clientY;
-            sphere.lastTime = performance.now();
-
-            sphere.color = getRandomColor();
-            sphere.element.style.backgroundColor = sphere.color;
+            e.preventDefault(); // Evitar comportamento padrão
+            startDragging(sphere, e.clientX, e.clientY);
         });
 
         document.addEventListener('mousemove', (e) => {
-            if (sphere.isDragging) {
-                const deltaX = e.clientX - sphere.lastX;
-                const deltaY = e.clientY - sphere.lastY;
-
-                sphere.x = Math.max(0, Math.min(sphere.x + deltaX, maxWidth));
-                sphere.y = Math.max(0, Math.min(sphere.y + deltaY, maxHeight));
-
-                sphere.lastX = e.clientX;
-                sphere.lastY = e.clientY;
-            }
+            moveDragging(sphere, e.clientX, e.clientY);
         });
 
         document.addEventListener('mouseup', (e) => {
-            if (sphere.isDragging) {
-                sphere.isDragging = false;
-                sphere.isPaused = false;
+            stopDragging(sphere, e.clientX, e.clientY);
+        });
 
-                const currentTime = performance.now();
-                const timeDelta = (currentTime - sphere.lastTime) / 1000;
-                const deltaX = e.clientX - sphere.lastX;
-                const deltaY = e.clientY - sphere.lastY;
+        // Eventos de toque
+        sphere.element.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Evitar scroll ou zoom
+            const touch = e.touches[0];
+            startDragging(sphere, touch.clientX, touch.clientY);
+        });
 
-                sphere.vx = (deltaX / timeDelta) * 0.05;
-                sphere.vy = (deltaY / timeDelta) * 0.05;
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            moveDragging(sphere, touch.clientX, touch.clientY);
+        });
 
-                sphere.vx = Math.max(-10, Math.min(10, sphere.vx));
-                sphere.vy = Math.max(-10, Math.min(10, sphere.vy));
-
-                sphere.lastTime = 0;
-            }
+        document.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+            stopDragging(sphere, touch.clientX, touch.clientY);
         });
     });
 
-    // Retomar movimento ao clicar na tela
+    // Retomar movimento ao clicar na tela (mouse ou toque)
     document.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('circle')) {
+            spheres.forEach(sphere => {
+                if (sphere.isPaused) {
+                    sphere.isPaused = false;
+                    if (sphere.vx === 0 && sphere.vy === 0) {
+                        sphere.vx = getRandomVelocity();
+                        sphere.vy = getRandomVelocity();
+                    }
+                }
+            });
+        }
+    });
+
+    document.addEventListener('touchstart', (e) => {
         if (!e.target.classList.contains('circle')) {
             spheres.forEach(sphere => {
                 if (sphere.isPaused) {
