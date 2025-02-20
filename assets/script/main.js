@@ -244,7 +244,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 
 
 ////////////////////////////////////////////
-// Esferas animadas (com formas geométricas, sólidos de Platão, tamanho responsivo e repulsão fluida)
+// Esferas animadas (com formas geométricas, sólidos de Platão, tamanho responsivo, repulsão fluida e restart automático)
 document.addEventListener('DOMContentLoaded', () => {
     // Configurações iniciais
     const defaultRadius = 64; // Tamanho padrão para desktop (128px de diâmetro)
@@ -253,6 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const repulsionForce = 2; // Força de repulsão ajustada
     const maxSpeed = 10; // Velocidade máxima
     const friction = 0.995; // Atrito muito leve para movimento contínuo
+    const minSpeedThreshold = 0.5; // Limiar de velocidade mínima para restart
 
     // Função para determinar o raio com base na largura da tela
     function getCircleRadius() {
@@ -298,11 +299,11 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'trapezoid', style: { clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)', borderRadius: '0' } }, // Trapézio
         { name: 'pentagon', style: { clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)', borderRadius: '0' } }, // Pentágono
         // Sólidos de Platão
-        { name: 'tetrahedron', style: { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: '0' } }, // Tetraedro (triângulo base)
-        { name: 'cube', style: { borderRadius: '0', clipPath: null } }, // Cubo (igual ao quadrado em 2D)
-        { name: 'octahedron', style: { clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', borderRadius: '0' } }, // Octaedro (losango em projeção)
-        { name: 'dodecahedron', style: { clipPath: 'polygon(50% 0%, 90% 38%, 72% 100%, 28% 100%, 10% 38%)', borderRadius: '0' } }, // Dodecaedro (pentágono aproximado)
-        { name: 'icosahedron', style: { clipPath: 'polygon(50% 0%, 85% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 15% 30%)', borderRadius: '0' } } // Icosaedro (aproximação hexagonal)
+        { name: 'tetrahedron', style: { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: '0' } }, // Tetraedro
+        { name: 'cube', style: { borderRadius: '0', clipPath: null } }, // Cubo
+        { name: 'octahedron', style: { clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', borderRadius: '0' } }, // Octaedro
+        { name: 'dodecahedron', style: { clipPath: 'polygon(50% 0%, 90% 38%, 72% 100%, 28% 100%, 10% 38%)', borderRadius: '0' } }, // Dodecaedro
+        { name: 'icosahedron', style: { clipPath: 'polygon(50% 0%, 85% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 15% 30%)', borderRadius: '0' } } // Icosaedro
     ];
 
     // Função para escolher uma forma aleatória
@@ -577,6 +578,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Atrito muito leve para desaceleração natural
                 sphere.vx *= friction;
                 sphere.vy *= friction;
+
+                // Verificar se a velocidade está muito baixa e reiniciar
+                const totalSpeed = Math.abs(sphere.vx) + Math.abs(sphere.vy);
+                if (totalSpeed < minSpeedThreshold) {
+                    sphere.vx = getRandomVelocity();
+                    sphere.vy = getRandomVelocity();
+                    console.log(`Restart automático em ${sphere.element.id}: vx=${sphere.vx}, vy=${sphere.vy}`);
+                }
 
                 // Limitar velocidade máxima
                 sphere.vx = Math.max(-maxSpeed, Math.min(maxSpeed, sphere.vx));
