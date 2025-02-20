@@ -439,4 +439,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     animate();
 });
-
