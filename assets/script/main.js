@@ -133,3 +133,310 @@ function colorTransitionByLetter() {
 }
 
 document.addEventListener('DOMContentLoaded', colorTransitionByLetter);
+
+function customCursor() {
+    if (!document.body) {
+        console.error('Erro: document.body não está disponível');
+        return;
+    }
+
+    const cursor = document.createElement('div');
+    const trail = [];
+    const trailLength = 20; // Aumentei o rastro de 10 para 20 (ajuste aqui)
+    let positions = [];
+
+    // Lista de cores fornecidas (convertidas de Sass para array JS)
+    const colors = [
+        '#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#ffffff', // Grays
+        '#8B0000', '#FF0000', '#FF6347', '#FF7F7F', '#FFA07A', // Reds
+        '#00008B', '#0000FF', '#1E90FF', '#87CEFA', '#ADD8E6', // Blues
+        '#006400', '#00FF00', '#32CD32', '#98FB98', '#90EE90', // Greens
+        '#FFD700', '#FFFF00', '#FFFFE0', '#FFFACD', '#FAFAD2', // Yellows
+        '#4B0082', '#8A2BE2', '#9370DB', '#BA55D3', '#DDA0DD'  // Violets
+    ];
+
+    // Função para escolher uma cor aleatória
+    const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
+
+    // Estilização do cursor principal
+    Object.assign(cursor.style, {
+        width: '20px',
+        height: '20px',
+        borderRadius: '50%',
+        border: `2px solid ${getRandomColor()}`, // Cor inicial aleatória
+        backgroundColor: getRandomColor(), // Cor inicial aleatória
+        position: 'fixed',
+        pointerEvents: 'none',
+        zIndex: '9999',
+        top: '0px',
+        left: '0px',
+        transition: 'transform 0.1s ease',
+        display: 'block'
+    });
+
+    document.body.appendChild(cursor);
+
+    // Criação dos elementos do rastro (borda laranja, interior transparente)
+    for (let i = 0; i < trailLength; i++) {
+        const trailElement = document.createElement('div');
+        Object.assign(trailElement.style, {
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            border: '2px solid orange',
+            backgroundColor: 'transparent',
+            position: 'fixed',
+            pointerEvents: 'none',
+            zIndex: '9998',
+            top: '0px',
+            left: '0px',
+            opacity: (1 - i / trailLength).toString(),
+            transition: 'transform 0.05s ease',
+            display: 'block'
+        });
+        trail.push(trailElement);
+        document.body.appendChild(trailElement);
+    }
+
+    // Evento de movimento do mouse
+    document.addEventListener('mousemove', (e) => {
+        const x = e.clientX - 10;
+        const y = e.clientY - 10;
+
+        // Atualiza posição do cursor
+        cursor.style.transform = `translate(${x}px, ${y}px)`;
+
+        // Muda a cor do cursor aleatoriamente
+        const newColor = getRandomColor();
+        cursor.style.border = `2px solid ${newColor}`;
+        cursor.style.backgroundColor = newColor;
+
+        // Atualiza o rastro
+        positions.unshift({ x, y });
+        if (positions.length > trailLength) {
+            positions.pop();
+        }
+
+        trail.forEach((trailElement, index) => {
+            const pos = positions[index] || positions[positions.length - 1];
+            if (pos) {
+                trailElement.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+            }
+        });
+    });
+
+    // Esconde o cursor padrão
+    document.body.style.cursor = 'none';
+}
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    customCursor();
+} else {
+    document.addEventListener('DOMContentLoaded', () => {
+        customCursor();
+    });
+}
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Configurações iniciais
+    const gridContainer = document.querySelector('.grid-container');
+    const circleRadius = 64; // Metade de 8rem (128px)
+    const maxWidth = gridContainer.offsetWidth - circleRadius * 2; // Largura do grid-container
+    const maxHeight = gridContainer.offsetHeight - circleRadius * 2; // Altura do grid-container
+
+    // Lista de esferas com IDs fixos
+    const circles = [
+        document.getElementById('c1'),
+        document.getElementById('c2'),
+        document.getElementById('c3'),
+        document.getElementById('c4'),
+        document.getElementById('c5'),
+        document.getElementById('c6'),
+        document.getElementById('c7'),
+        document.getElementById('c8'),
+        document.getElementById('c9'),
+        document.getElementById('c10')
+    ];
+
+    // Lista de cores
+    const colors = [
+        '#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#ffffff',
+        '#8B0000', '#FF0000', '#FF6347', '#FF7F7F', '#FFA07A',
+        '#00008B', '#0000FF', '#1E90FF', '#87CEFA', '#ADD8E6',
+        '#006400', '#00FF00', '#32CD32', '#98FB98', '#90EE90',
+        '#FFD700', '#FFFF00', '#FFFFE0', '#FFFACD', '#FAFAD2',
+        '#4B0082', '#8A2BE2', '#9370DB', '#BA55D3', '#DDA0DD'
+    ];
+
+    // Funções utilitárias
+    const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
+    const getRandomVelocity = () => (Math.random() - 0.5) * 4;
+
+    // Inicializar esferas
+    const spheres = circles.map(circle => ({
+        element: circle,
+        x: Math.random() * maxWidth,
+        y: Math.random() * maxHeight,
+        vx: getRandomVelocity(),
+        vy: getRandomVelocity(),
+        color: getRandomColor(),
+        isDragging: false,
+        lastX: 0,
+        lastY: 0,
+        lastTime: 0,
+        isPaused: false
+    }));
+
+    spheres.forEach(sphere => {
+        sphere.element.style.backgroundColor = sphere.color;
+        sphere.element.style.cursor = 'pointer';
+        sphere.element.style.pointerEvents = 'auto';
+        sphere.element.style.position = 'absolute';
+        sphere.element.style.zIndex = '1000'; // Alta prioridade
+        sphere.element.style.transform = `translate(${sphere.x}px, ${sphere.y}px)`;
+    });
+
+    // Função de colisão
+    function checkCollision(sphere1, sphere2) {
+        const dx = sphere2.x - sphere1.x;
+        const dy = sphere2.y - sphere1.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        return distance < circleRadius * 2;
+    }
+
+    // Resolver colisão
+    function resolveCollision(sphere1, sphere2) {
+        const dx = sphere2.x - sphere1.x;
+        const dy = sphere2.y - sphere1.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        const nx = dx / distance;
+        const ny = dy / distance;
+
+        const relativeVelocityX = sphere2.vx - sphere1.vx;
+        const relativeVelocityY = sphere2.vy - sphere1.vy;
+        const impulse = 2 * (relativeVelocityX * nx + relativeVelocityY * ny) / 2;
+
+        sphere1.vx += impulse * nx;
+        sphere1.vy += impulse * ny;
+        sphere2.vx -= impulse * nx;
+        sphere2.vy -= impulse * ny;
+
+        const tempColor = sphere1.color;
+        sphere1.color = sphere2.color;
+        sphere2.color = tempColor;
+        sphere1.element.style.backgroundColor = sphere1.color;
+        sphere2.element.style.backgroundColor = sphere2.color;
+    }
+
+    // Eventos de arrastar
+    spheres.forEach(sphere => {
+        sphere.element.addEventListener('mousedown', (e) => {
+            sphere.isDragging = true;
+            sphere.isPaused = true;
+            sphere.lastX = e.clientX;
+            sphere.lastY = e.clientY;
+            sphere.lastTime = performance.now();
+
+            sphere.color = getRandomColor();
+            sphere.element.style.backgroundColor = sphere.color;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (sphere.isDragging) {
+                const deltaX = e.clientX - sphere.lastX;
+                const deltaY = e.clientY - sphere.lastY;
+
+                sphere.x = Math.max(0, Math.min(sphere.x + deltaX, maxWidth));
+                sphere.y = Math.max(0, Math.min(sphere.y + deltaY, maxHeight));
+
+                sphere.lastX = e.clientX;
+                sphere.lastY = e.clientY;
+            }
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (sphere.isDragging) {
+                sphere.isDragging = false;
+                sphere.isPaused = false;
+
+                const currentTime = performance.now();
+                const timeDelta = (currentTime - sphere.lastTime) / 1000;
+                const deltaX = e.clientX - sphere.lastX;
+                const deltaY = e.clientY - sphere.lastY;
+
+                sphere.vx = (deltaX / timeDelta) * 0.05;
+                sphere.vy = (deltaY / timeDelta) * 0.05;
+
+                sphere.vx = Math.max(-10, Math.min(10, sphere.vx));
+                sphere.vy = Math.max(-10, Math.min(10, sphere.vy));
+
+                sphere.lastTime = 0;
+            }
+        });
+    });
+
+    // Retomar movimento ao clicar na tela
+    document.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('circle')) {
+            spheres.forEach(sphere => {
+                if (sphere.isPaused) {
+                    sphere.isPaused = false;
+                    if (sphere.vx === 0 && sphere.vy === 0) {
+                        sphere.vx = getRandomVelocity();
+                        sphere.vy = getRandomVelocity();
+                    }
+                }
+            });
+        }
+    });
+
+    // Função de animação
+    function animate() {
+        spheres.forEach(sphere => {
+            if (!sphere.isDragging && !sphere.isPaused) {
+                sphere.x += sphere.vx;
+                sphere.y += sphere.vy;
+
+                // Colisão com as bordas do grid-container
+                if (sphere.x <= 0) {
+                    sphere.x = 0;
+                    sphere.vx = -sphere.vx * 0.8;
+                } else if (sphere.x >= maxWidth) {
+                    sphere.x = maxWidth;
+                    sphere.vx = -sphere.vx * 0.8;
+                }
+                if (sphere.y <= 0) {
+                    sphere.y = 0;
+                    sphere.vy = -sphere.vy * 0.8;
+                } else if (sphere.y >= maxHeight) {
+                    sphere.y = maxHeight;
+                    sphere.vy = -sphere.vy * 0.8;
+                }
+            }
+
+            sphere.element.style.transform = `translate(${sphere.x}px, ${sphere.y}px)`;
+        });
+
+        // Verificar colisões entre esferas
+        for (let i = 0; i < spheres.length; i++) {
+            for (let j = i + 1; j < spheres.length; j++) {
+                if (checkCollision(spheres[i], spheres[j])) {
+                    resolveCollision(spheres[i], spheres[j]);
+                }
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    // Depuração
+    console.log('maxWidth:', maxWidth, 'maxHeight:', maxHeight);
+
+    animate();
+});
+

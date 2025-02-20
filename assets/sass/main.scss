@@ -4,7 +4,7 @@
 
 header {
     position: fixed;
-    z-index: 3000;
+    z-index: 1;
     background-color: $color-white ;
     width: 100%;
     display: flex;
@@ -152,11 +152,30 @@ header {
 }
 
 .sh-4 {
-    height: 1080px;
+/*     height: 1080px;
+    width: 100%; */
+    border: 1px solid red;
     background-image: url(../img/bg-shero7.webp);
     background-size: cover;
     background-position: left center;
-    background-repeat: no-repeat
+    background-repeat: no-repeat;
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+    /* Garante que a seção fique acima do footer */
+}
+
+.sh-4 .grid-container {
+    height: 100%;
+    width: 100%;
+    border: 1px solid red;
+}
+
+.sh-4 .circle {
+    width: 8rem;
+    height: 8rem;
+    border-radius: 50%;
+    position: absolute;
 }
 
 footer {

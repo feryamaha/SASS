@@ -37,7 +37,7 @@ header #menu-toggle, header #Ct-button {
 header #menu-square {
   display: block;
   position: relative;
-  z-index: 1001;
+  z-index: 3;
   cursor: pointer;
 }
 header .menu {
@@ -49,7 +49,7 @@ header .menu {
   flex-direction: column;
   align-items: center;
   padding: 2rem;
-  z-index: 1000;
+  z-index: 3;
   height: 320px;
   width: 220px;
   overflow-y: auto;
