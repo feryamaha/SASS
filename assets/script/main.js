@@ -1,4 +1,3 @@
-// Definindo as cores uma única vez no topo do arquivo
 const colors = {
     blackToGray: ['#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#fff'],
     red: ['#8B0000', '#FF0000', '#FF6347', '#FF7F7F', '#FFA07A'],
@@ -8,7 +7,6 @@ const colors = {
     violet: ['#4B0082', '#8A2BE2', '#9370DB', '#BA55D3', '#DDA0DD']
 };
 
-// Função para converter hex para RGB array
 function hexToRgb(hex) {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -16,7 +14,6 @@ function hexToRgb(hex) {
     return [r, g, b];
 }
 
-// Função global para escolher uma cor aleatória (suporta hex e RGB)
 function getRandomColor(format = 'hex') {
     const colorGroups = Object.values(colors);
     const randomGroup = colorGroups[Math.floor(Math.random() * colorGroups.length)];
@@ -24,7 +21,132 @@ function getRandomColor(format = 'hex') {
     return format === 'rgb' ? hexToRgb(randomColor) : randomColor;
 }
 
-// Menu toggle (inalterado)
+function getRandomVelocity() {
+    return (Math.random() - 0.5) * 4;
+}
+
+async function fetchComplementaryColor(hex) {
+    try {
+        if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) {
+            return getRandomColor('hex');
+        }
+        const response = await fetch(`https://www.thecolorapi.com/id?hex=${hex.slice(1)}`);
+        const data = await response.json();
+        if (!data || !data.complementary || !data.complementary.hex || !data.complementary.hex.value) {
+            throw new Error('Resposta da API inválida');
+        }
+        return data.complementary.hex.value;
+    } catch (error) {
+        return getRandomColor('hex');
+    }
+}
+
+// Seção de Áudio com Web Audio API
+let audioContext = null;
+let plockBuffer = null;
+let isAudioUnlocked = false;
+
+function unlockAudio() {
+    if (audioContext) return;
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    loadPlockSound();
+    isAudioUnlocked = true;
+    console.log('AudioContext desbloqueado');
+}
+
+async function loadPlockSound() {
+    try {
+        const audioPath = './assets/sounds/plock.m4a'; // Caminho explícito
+        console.log('Carregando áudio de:', audioPath);
+        const response = await fetch(audioPath);
+        if (!response.ok) throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        const arrayBuffer = await response.arrayBuffer();
+        console.log('ArrayBuffer recebido, decodificando...');
+        plockBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        console.log('Áudio carregado com sucesso, plockBuffer pronto');
+    } catch (error) {
+        console.error('Falha ao carregar plock.m4a:', error);
+    }
+}
+
+function playPlockSound() {
+    if (!audioContext) console.warn('AudioContext não inicializado');
+    if (!plockBuffer) console.warn('plockBuffer não carregado');
+    if (!isAudioUnlocked) console.warn('Áudio bloqueado: interação do usuário necessária');
+    if (!audioContext || !plockBuffer || !isAudioUnlocked) {
+        console.warn('Áudio não reproduzido: contexto ou buffer não pronto');
+        return;
+    }
+    const source = audioContext.createBufferSource();
+    source.buffer = plockBuffer;
+    source.connect(audioContext.destination);
+    source.start(0);
+    console.log('Som "plock" reproduzido');
+}
+
+// Função para Esferas de Explosão (Corrigida com Maior Dispersão)
+function createExplosionSpheres(sphere1, sphere2, circleRadius) {
+    const explosionCount = 10; // Sempre 10 esferas
+    const shapes = [
+        { name: 'circle', style: { borderRadius: '50%', clipPath: null } },
+        { name: 'square', style: { borderRadius: '0', clipPath: null } },
+        { name: 'triangle', style: { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: '0' } },
+        { name: 'diamond', style: { clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', borderRadius: '0' } },
+        { name: 'ellipse', style: { borderRadius: '50% / 75%', clipPath: null } },
+        { name: 'trapezoid', style: { clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)', borderRadius: '0' } },
+        { name: 'pentagon', style: { clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)', borderRadius: '0' } },
+        { name: 'tetrahedron', style: { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: '0' } },
+        { name: 'cube', style: { borderRadius: '0', clipPath: null } },
+        { name: 'octahedron', style: { clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', borderRadius: '0' } }
+    ];
+
+    console.log('Criando 10 esferas de explosão para colisão entre', sphere1.element.id, 'e', sphere2.element.id);
+
+    // Embaralhar as formas para garantir variedade
+    const shuffledShapes = shapes.sort(() => Math.random() - 0.5).slice(0, explosionCount);
+
+    for (let i = 0; i < explosionCount; i++) {
+        const tempSphere = document.createElement('div');
+        tempSphere.className = 'circle temporary';
+        const shape = shuffledShapes[i];
+
+        // Posição inicial com dispersão dobrada (2x maior)
+        const offsetX = (Math.random() - 0.5) * 200; // Dispersão de ±200px (era ±100)
+        const offsetY = (Math.random() - 0.5) * 200; // Dispersão de ±200px (era ±100)
+        const centerX = (sphere1.x + sphere2.x) / 2;
+        const centerY = (sphere1.y + sphere2.y) / 2;
+        tempSphere.style.position = 'fixed';
+        tempSphere.style.left = `${centerX + offsetX}px`;
+        tempSphere.style.top = `${centerY + offsetY}px`;
+
+        // Estilo da esfera
+        tempSphere.style.backgroundColor = getRandomColor('hex');
+        tempSphere.style.width = `${circleRadius * 0.6}px`;
+        tempSphere.style.height = `${circleRadius * 0.6}px`;
+        tempSphere.style.borderRadius = shape.style.borderRadius || '0';
+        if (shape.style.clipPath) tempSphere.style.clipPath = shape.style.clipPath;
+        tempSphere.style.zIndex = '9996';
+        tempSphere.style.opacity = '1';
+        tempSphere.style.transition = 'opacity 2.5s ease-out'; // 2,5 segundos
+
+        document.body.appendChild(tempSphere);
+        console.log(`Esfera temporária ${i + 1} criada: forma=${shape.name}, x=${centerX + offsetX}, y=${centerY + offsetY}`);
+
+        // Animação: esmaece após um atraso
+        setTimeout(() => {
+            tempSphere.style.opacity = '0';
+            console.log(`Esfera temporária ${i + 1} começou a esmaecer`);
+        }, Math.random() * 500); // Atraso de 0 a 500ms
+
+        // Remove após a animação
+        setTimeout(() => {
+            tempSphere.remove();
+            console.log(`Esfera temporária ${i + 1} removida`);
+        }, 2500); // Duração total de 2,5s
+    }
+}
+
+// Menu Toggle
 document.addEventListener('DOMContentLoaded', function () {
     const menuSquare = document.getElementById('menu-square');
     const menu = document.getElementById('menu-toggle');
@@ -35,22 +157,20 @@ document.addEventListener('DOMContentLoaded', function () {
         menu.classList.toggle('active');
         if (menu.classList.contains('active')) {
             menuSquare.src = closeSrc;
-            menu.style.display = 'flex'; // Mostrar o menu quando ativo
+            menu.style.display = 'flex';
         } else {
             menuSquare.src = originalSrc;
-            menu.style.display = 'none'; // Ocultar o menu quando inativo
+            menu.style.display = 'none';
         }
     });
 
-    // Ocultar o menu por padrão em telas menores que 768px
     if (window.innerWidth <= 768) {
         menu.style.display = 'none';
     }
 
-    // Adicionar um listener de redimensionamento para ajustar o menu
     window.addEventListener('resize', function () {
         if (window.innerWidth > 768) {
-            menu.style.display = ''; // Reset para o comportamento padrão em telas maiores
+            menu.style.display = '';
             menu.classList.remove('active');
             menuSquare.src = originalSrc;
         } else {
@@ -62,76 +182,62 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Efeito de pulsação (inalterado)
+// Efeito de Pulsação
 function pulseEffect() {
     const elements = document.querySelectorAll('.box-content-img-home, .box-content-img-2');
-
     elements.forEach(element => {
-        let scale = 1; // Começa no tamanho normal
-        let brightness = 1; // Começa com brilho normal
+        let scale = 1;
+        let brightness = 1;
         let pulsingUp = false;
-
         setInterval(() => {
             if (pulsingUp) {
-                scale = Math.min(scale + 0.005, 1.05); // Aumenta o tamanho, mas não mais que 5%
-                brightness = Math.min(brightness + 0.05, 1.2); // Aumenta o brilho, mas não mais que 20%
-                if (scale >= 1.05) {
-                    pulsingUp = false;
-                }
+                scale = Math.min(scale + 0.005, 1.05);
+                brightness = Math.min(brightness + 0.05, 1.2);
+                if (scale >= 1.05) pulsingUp = false;
             } else {
-                scale = Math.max(scale - 0.005, 0.95); // Diminui o tamanho, mas não menos que 5% menor
-                brightness = Math.max(brightness - 0.05, 0.8); // Diminui o brilho, mas não menos que 20% menos brilhante
-                if (scale <= 0.95) {
-                    pulsingUp = true;
-                }
+                scale = Math.max(scale - 0.005, 0.95);
+                brightness = Math.max(brightness - 0.05, 0.8);
+                if (scale <= 0.95) pulsingUp = true;
             }
-
             element.style.transform = `scale(${scale})`;
             element.style.filter = `brightness(${brightness})`;
-        }, 50); // Ajuste o intervalo para controlar a velocidade do efeito
+        }, 50);
     });
 }
 
 document.addEventListener('DOMContentLoaded', pulseEffect);
 
-// Efeito de onda (inalterado)
+// Efeito de Onda
 function waveEffect() {
     const elements = document.querySelectorAll('.box-content-img-3, .box-content-img-4, .box-content-img-5, .box-content-img-6');
-    const amplitude = 20; // Amplitude do movimento vertical
-    const speed = 0.05; // Velocidade das ondas, ajuste conforme necessário
-
+    const amplitude = 20;
+    const speed = 0.05;
     elements.forEach((element, index) => {
-        let time = index * Math.PI / 2; // Cada elemento começa em um ponto diferente da onda para criar o efeito de corda
-        const initialY = element.offsetTop; // Posição inicial Y
-
+        let time = index * Math.PI / 2;
+        const initialY = element.offsetTop;
         setInterval(() => {
-            // Função senoidal para criar o movimento de onda, com desfasamento baseado no índice
             const y = initialY + Math.sin(time) * amplitude;
             element.style.transform = `translateY(${y - initialY}px)`;
-            time += speed; // Ajuste a velocidade das ondas
-        }, 50); // Intervalo de atualização
+            time += speed;
+        }, 50);
     });
 }
 
 document.addEventListener('DOMContentLoaded', waveEffect);
 
-// Transição de cor por letra (otimizado)
+// Transição de Cor por Letra
 function colorTransitionByLetter() {
     const textElements = document.querySelectorAll('.s-hero .box-text h2, .s-hero .box-text p, .wrapper-box h2, .wrapper-box p, .menu a');
-
     function getRandomColorLocal() {
-        return getRandomColor('hex'); // Usando a função global
+        return getRandomColor('hex');
     }
-
     textElements.forEach(element => {
         const text = element.textContent;
         const letters = text.split('');
-
         let html = '';
         letters.forEach((letter, index) => {
             html += `<span style="color: ${getRandomColorLocal()}; transition: color 0.8s ease;">${letter}</span>`;
         });
-
         let counter = 0;
         const updateColor = setInterval(() => {
             const spans = element.querySelectorAll('span');
@@ -139,35 +245,28 @@ function colorTransitionByLetter() {
                 spans[counter].style.color = getRandomColorLocal();
                 counter++;
             } else {
-                counter = 0; // Reset counter to start over
+                counter = 0;
             }
-        }, 3000 / letters.length); // Intervalo ajustado para mudar a cor de cada letra sequencialmente
-
-        element.innerHTML = html; // Atualiza o conteúdo com spans coloridos
+        }, 3000 / letters.length);
+        element.innerHTML = html;
     });
 }
 
 document.addEventListener('DOMContentLoaded', colorTransitionByLetter);
 
-// Cursor personalizado (otimizado)
+// Cursor Personalizado
 function customCursor() {
-    if (!document.body) {
-        console.error('Erro: document.body não está disponível');
-        return;
-    }
-
+    if (!document.body) return;
     const cursor = document.createElement('div');
     const trail = [];
-    const trailLength = 20; // Aumentei o rastro de 10 para 20 (ajuste aqui)
+    const trailLength = 20;
     let positions = [];
-
-    // Estilização do cursor principal
     Object.assign(cursor.style, {
         width: '20px',
         height: '20px',
         borderRadius: '50%',
-        border: `2px solid ${getRandomColor('hex')}`, // Usando a função global
-        backgroundColor: getRandomColor('hex'), // Usando a função global
+        border: `2px solid ${getRandomColor('hex')}`,
+        backgroundColor: getRandomColor('hex'),
         position: 'fixed',
         pointerEvents: 'none',
         zIndex: '9999',
@@ -176,10 +275,7 @@ function customCursor() {
         transition: 'transform 0.1s ease',
         display: 'block'
     });
-
     document.body.appendChild(cursor);
-
-    // Criação dos elementos do rastro (borda laranja, interior transparente)
     for (let i = 0; i < trailLength; i++) {
         const trailElement = document.createElement('div');
         Object.assign(trailElement.style, {
@@ -200,26 +296,17 @@ function customCursor() {
         trail.push(trailElement);
         document.body.appendChild(trailElement);
     }
-
-    // Evento de movimento do mouse
     document.addEventListener('mousemove', (e) => {
         const x = e.clientX - 10;
         const y = e.clientY - 10;
-
-        // Atualiza posição do cursor
         cursor.style.transform = `translate(${x}px, ${y}px)`;
-
-        // Muda a cor do cursor aleatoriamente
-        const newColor = getRandomColor('hex'); // Usando a função global
+        const newColor = getRandomColor('hex');
         cursor.style.border = `2px solid ${newColor}`;
         cursor.style.backgroundColor = newColor;
-
-        // Atualiza o rastro
         positions.unshift({ x, y });
         if (positions.length > trailLength) {
             positions.pop();
         }
-
         trail.forEach((trailElement, index) => {
             const pos = positions[index] || positions[positions.length - 1];
             if (pos) {
@@ -227,8 +314,6 @@ function customCursor() {
             }
         });
     });
-
-    // Esconde o cursor padrão
     document.body.style.cursor = 'none';
 }
 
@@ -240,29 +325,22 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     });
 }
 
-
-
-
-////////////////////////////////////////////
-// Esferas animadas (com formas geométricas, sólidos de Platão, tamanho responsivo, repulsão fluida e restart automático)
+// Esferas Animadas
 document.addEventListener('DOMContentLoaded', () => {
-    // Configurações iniciais
-    const defaultRadius = 64; // Tamanho padrão para desktop (128px de diâmetro)
-    const mobileRadius = 32; // Tamanho reduzido para mobile (64px de diâmetro)
-    const mobileBreakpoint = 768; // Limite para tablets/celulares
-    const repulsionForce = 2; // Força de repulsão ajustada
-    const maxSpeed = 10; // Velocidade máxima
-    const friction = 0.995; // Atrito muito leve para movimento contínuo
-    const minSpeedThreshold = 0.5; // Limiar de velocidade mínima para restart
+    const defaultRadius = 64;
+    const mobileRadius = 32;
+    const mobileBreakpoint = 768;
+    const repulsionForce = 2;
+    const maxSpeed = 10;
+    const friction = 0.995;
+    const minSpeedThreshold = 0.5;
 
-    // Função para determinar o raio com base na largura da tela
     function getCircleRadius() {
         return window.innerWidth <= mobileBreakpoint ? mobileRadius : defaultRadius;
     }
 
-    let circleRadius = getCircleRadius(); // Raio inicial
+    let circleRadius = getCircleRadius();
 
-    // Lista de esferas com IDs fixos
     const circles = [
         document.getElementById('c1'),
         document.getElementById('c2'),
@@ -276,52 +354,35 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('c10')
     ];
 
-    // Verificar se as esferas foram encontradas
-    circles.forEach((circle, index) => {
-        if (!circle) {
-            console.error(`Esfera c${index + 1} não encontrada no DOM!`);
-        } else {
-            console.log(`Esfera c${index + 1} encontrada:`, circle);
-        }
-    });
-
-    // Funções utilitárias
-    const getRandomColorLocal = () => getRandomColor('hex');
-    const getRandomVelocity = () => (Math.random() - 0.5) * 4;
-
-    // Lista de formas geométricas e sólidos de Platão com estilos CSS
     const shapes = [
-        { name: 'circle', style: { borderRadius: '50%', clipPath: null } }, // Círculo
-        { name: 'square', style: { borderRadius: '0', clipPath: null } }, // Quadrado
-        { name: 'triangle', style: { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: '0' } }, // Triângulo
-        { name: 'diamond', style: { clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', borderRadius: '0' } }, // Losango
-        { name: 'ellipse', style: { borderRadius: '50% / 75%', clipPath: null } }, // Elipse
-        { name: 'trapezoid', style: { clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)', borderRadius: '0' } }, // Trapézio
-        { name: 'pentagon', style: { clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)', borderRadius: '0' } }, // Pentágono
-        // Sólidos de Platão
-        { name: 'tetrahedron', style: { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: '0' } }, // Tetraedro
-        { name: 'cube', style: { borderRadius: '0', clipPath: null } }, // Cubo
-        { name: 'octahedron', style: { clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', borderRadius: '0' } }, // Octaedro
-        { name: 'dodecahedron', style: { clipPath: 'polygon(50% 0%, 90% 38%, 72% 100%, 28% 100%, 10% 38%)', borderRadius: '0' } }, // Dodecaedro
-        { name: 'icosahedron', style: { clipPath: 'polygon(50% 0%, 85% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 15% 30%)', borderRadius: '0' } } // Icosaedro
+        { name: 'circle', style: { borderRadius: '50%', clipPath: null } },
+        { name: 'square', style: { borderRadius: '0', clipPath: null } },
+        { name: 'triangle', style: { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: '0' } },
+        { name: 'diamond', style: { clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', borderRadius: '0' } },
+        { name: 'ellipse', style: { borderRadius: '50% / 75%', clipPath: null } },
+        { name: 'trapezoid', style: { clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)', borderRadius: '0' } },
+        { name: 'pentagon', style: { clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)', borderRadius: '0' } },
+        { name: 'tetrahedron', style: { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: '0' } },
+        { name: 'cube', style: { borderRadius: '0', clipPath: null } },
+        { name: 'octahedron', style: { clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', borderRadius: '0' } },
+        { name: 'dodecahedron', style: { clipPath: 'polygon(50% 0%, 90% 38%, 72% 100%, 28% 100%, 10% 38%)', borderRadius: '0' } },
+        { name: 'icosahedron', style: { clipPath: 'polygon(50% 0%, 85% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 15% 30%)', borderRadius: '0' } }
     ];
 
-    // Função para escolher uma forma aleatória
     function getRandomShape() {
         return shapes[Math.floor(Math.random() * shapes.length)];
     }
 
-    // Inicializar esferas
     const spheres = circles.map(circle => {
-        if (!circle) return null; // Evitar erros com elementos nulos
-        const initialShape = shapes[0]; // Começa como círculo
+        if (!circle) return null;
+        const initialShape = shapes[0];
         return {
             element: circle,
             x: 0,
             y: 0,
             vx: getRandomVelocity(),
             vy: getRandomVelocity(),
-            color: getRandomColorLocal(),
+            color: getRandomColor('hex'),
             shape: initialShape,
             isDragging: false,
             lastX: 0,
@@ -331,12 +392,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }).filter(sphere => sphere !== null);
 
-    if (spheres.length === 0) {
-        console.error('Nenhuma esfera válida foi inicializada! Verifique os IDs no HTML.');
-        return;
-    }
+    if (spheres.length === 0) return;
 
-    // Função para aplicar a forma e tamanho ao elemento
     function applyShapeAndSize(sphere) {
         const { style } = sphere.shape;
         sphere.element.style.borderRadius = style.borderRadius;
@@ -346,7 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sphere.element.style.height = `${size}px`;
     }
 
-    // Inicializar posições iniciais aleatórias
     spheres.forEach(sphere => {
         const bounds = getContainerBounds();
         sphere.x = Math.random() * bounds.maxWidth;
@@ -355,24 +411,21 @@ document.addEventListener('DOMContentLoaded', () => {
         sphere.element.style.left = `${sphere.x}px`;
         sphere.element.style.top = `${sphere.y}px`;
         sphere.element.style.backgroundColor = sphere.color;
-        applyShapeAndSize(sphere); // Aplicar forma e tamanho inicial
+        applyShapeAndSize(sphere);
         sphere.element.style.zIndex = '9997';
         sphere.element.style.opacity = '1';
         sphere.element.style.display = 'block';
         sphere.element.style.cursor = 'pointer';
         sphere.element.style.pointerEvents = 'auto';
-        console.log(`Esfera ${sphere.element.id} posicionada em: left=${sphere.x}px, top=${sphere.y}px, color=${sphere.color}, shape=${sphere.shape.name}`);
     });
 
-    // Função para obter limites dinâmicos do body
     function getContainerBounds() {
-        circleRadius = getCircleRadius(); // Atualizar raio dinamicamente
+        circleRadius = getCircleRadius();
         const maxWidth = Math.max(0, window.innerWidth - circleRadius * 2);
         const maxHeight = Math.max(0, window.innerHeight - circleRadius * 2);
         return { maxWidth, maxHeight };
     }
 
-    // Função de colisão
     function checkCollision(sphere1, sphere2) {
         const dx = sphere2.x - sphere1.x;
         const dy = sphere2.y - sphere1.y;
@@ -380,28 +433,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return distance < circleRadius * 2;
     }
 
-    // Resolver colisão (com troca de cor, forma e repulsão fluida)
-    function resolveCollision(sphere1, sphere2) {
+    async function resolveCollision(sphere1, sphere2) {
         const dx = sphere2.x - sphere1.x;
         const dy = sphere2.y - sphere1.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance === 0) return; // Evitar divisão por zero
+        if (distance === 0) return;
 
         const nx = dx / distance;
         const ny = dy / distance;
 
-        // Física de colisão (rebote)
         const relativeVelocityX = sphere2.vx - sphere1.vx;
         const relativeVelocityY = sphere2.vy - sphere1.vy;
         const impulse = 2 * (relativeVelocityX * nx + relativeVelocityY * ny) / 2;
 
-        sphere1.vx += impulse * nx * 0.9; // Rebote quase total
+        sphere1.vx += impulse * nx * 0.9;
         sphere1.vy += impulse * ny * 0.9;
         sphere2.vx -= impulse * nx * 0.9;
         sphere2.vy -= impulse * ny * 0.9;
 
-        // Força de repulsão suave
         const repulsionX = nx * repulsionForce;
         const repulsionY = ny * repulsionForce;
         sphere1.vx -= repulsionX;
@@ -409,45 +459,41 @@ document.addEventListener('DOMContentLoaded', () => {
         sphere2.vx += repulsionX;
         sphere2.vy += repulsionY;
 
-        // Redução mínima de velocidade após colisão
-        sphere1.vx *= 0.95; // Redução de apenas 5%
+        sphere1.vx *= 0.95;
         sphere1.vy *= 0.95;
         sphere2.vx *= 0.95;
         sphere2.vy *= 0.95;
 
-        // Limitar velocidade máxima
         sphere1.vx = Math.max(-maxSpeed, Math.min(maxSpeed, sphere1.vx));
         sphere1.vy = Math.max(-maxSpeed, Math.min(maxSpeed, sphere1.vy));
         sphere2.vx = Math.max(-maxSpeed, Math.min(maxSpeed, sphere2.vx));
         sphere2.vy = Math.max(-maxSpeed, Math.min(maxSpeed, sphere2.vy));
 
-        // Troca de cor
-        const tempColor = sphere1.color;
-        sphere1.color = sphere2.color;
-        sphere2.color = tempColor;
+        const newColor1 = await fetchComplementaryColor(sphere1.color);
+        const newColor2 = await fetchComplementaryColor(sphere2.color);
+        sphere1.color = newColor1;
+        sphere2.color = newColor2;
 
-        // Troca de forma
         const tempShape = sphere1.shape;
         sphere1.shape = getRandomShape();
         sphere2.shape = getRandomShape();
 
-        // Aplicar estilos
         sphere1.element.style.backgroundColor = sphere1.color;
         sphere2.element.style.backgroundColor = sphere2.color;
         applyShapeAndSize(sphere1);
         applyShapeAndSize(sphere2);
 
-        console.log(`Colisão: ${sphere1.element.id} virou ${sphere1.shape.name}, ${sphere2.element.id} virou ${sphere2.shape.name}`);
+        createExplosionSpheres(sphere1, sphere2, circleRadius);
+        playPlockSound();
     }
 
-    // Funções de arrastar
     function startDragging(sphere, x, y) {
         sphere.isDragging = true;
         sphere.isPaused = true;
         sphere.lastX = x;
         sphere.lastY = y;
         sphere.lastTime = performance.now();
-        sphere.color = getRandomColorLocal();
+        sphere.color = getRandomColor('hex');
         sphere.element.style.backgroundColor = sphere.color;
     }
 
@@ -478,7 +524,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Eventos para cada esfera
     spheres.forEach(sphere => {
         sphere.element.addEventListener('mousedown', (e) => {
             e.preventDefault();
@@ -513,7 +558,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Retomar movimento ao clicar/tocar fora das esferas
     document.addEventListener('click', (e) => {
         if (!e.target.classList.contains('circle')) {
             spheres.forEach(sphere => {
@@ -542,15 +586,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Listener para redimensionamento da janela
     window.addEventListener('resize', () => {
-        circleRadius = getCircleRadius(); // Atualizar raio ao redimensionar
+        circleRadius = getCircleRadius();
         spheres.forEach(sphere => {
-            applyShapeAndSize(sphere); // Reaplicar tamanho responsivo
+            applyShapeAndSize(sphere);
         });
     });
 
-    // Função de animação
     function animate() {
         const bounds = getContainerBounds();
 
@@ -559,7 +601,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 sphere.x += sphere.vx;
                 sphere.y += sphere.vy;
 
-                // Colisão com as bordas do body
                 if (sphere.x <= 0) {
                     sphere.x = 0;
                     sphere.vx = -sphere.vx * 0.8;
@@ -575,19 +616,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     sphere.vy = -sphere.vy * 0.8;
                 }
 
-                // Atrito muito leve para desaceleração natural
                 sphere.vx *= friction;
                 sphere.vy *= friction;
 
-                // Verificar se a velocidade está muito baixa e reiniciar
                 const totalSpeed = Math.abs(sphere.vx) + Math.abs(sphere.vy);
                 if (totalSpeed < minSpeedThreshold) {
                     sphere.vx = getRandomVelocity();
                     sphere.vy = getRandomVelocity();
-                    console.log(`Restart automático em ${sphere.element.id}: vx=${sphere.vx}, vy=${sphere.vy}`);
                 }
 
-                // Limitar velocidade máxima
                 sphere.vx = Math.max(-maxSpeed, Math.min(maxSpeed, sphere.vx));
                 sphere.vy = Math.max(-maxSpeed, Math.min(maxSpeed, sphere.vy));
             }
@@ -607,28 +644,14 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(animate);
     }
 
-    console.log('Initial bounds:', getContainerBounds());
-    console.log('Esferas inicializadas:', spheres);
-
     animate();
 });
 
-
-
-
-
-
-
-////////////////////////////////////////////
-// Gradiente animado (otimizado)
+// Gradiente Animado
 document.addEventListener('DOMContentLoaded', () => {
     const section = document.querySelector('.sh-4');
-    if (!section) {
-        console.error('Elemento .sh-4 não encontrado!');
-        return;
-    }
+    if (!section) return;
 
-    // Função para interpolar entre duas cores (mantida como no original)
     function calcular(cor1, cor2, progresso) {
         const ret = [];
         for (let i = 0; i < cor1.length; i++) {
@@ -637,23 +660,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return ret;
     }
 
-    // Função local para manter compatibilidade com calcular
     function getRandomColorLocal() {
-        return getRandomColor('rgb'); // Usando a função global em formato RGB
+        return getRandomColor('rgb');
     }
 
-    // Cores iniciais em RGB (baseadas no seu CSS original)
-    let origem1 = hexToRgb('#4BFFED'); // rgba(75, 255, 237, 1)
-    let origem2 = hexToRgb('#202AEB'); // rgba(32, 42, 235, 1)
-    let alvo1 = getRandomColorLocal(); // Próxima cor para camada 1
-    let alvo2 = getRandomColorLocal(); // Próxima cor para camada 2
-    let progresso = 0; // Progresso da transição
-    let offset = 100; // Posição inicial para movimento (direita)
+    let origem1 = hexToRgb('#4BFFED');
+    let origem2 = hexToRgb('#202AEB');
+    let alvo1 = getRandomColorLocal();
+    let alvo2 = getRandomColorLocal();
+    let progresso = 0;
+    let offset = 100;
 
-    // Função para atualizar o gradiente
     function updateGradient() {
-        // Atualiza o progresso da transição de cores
-        progresso += 0.005; // Ajuste para mais lento ou rápido
+        progresso += 0.005;
         if (progresso > 1) {
             progresso = 0;
             origem1 = alvo1;
@@ -662,29 +681,50 @@ document.addEventListener('DOMContentLoaded', () => {
             alvo2 = getRandomColorLocal();
         }
 
-        // Calcula as cores atuais
         const cor1 = calcular(origem1, alvo1, progresso);
         const cor2 = calcular(origem2, alvo2, progresso);
 
-        // Converte para formato RGB string
         const rgb1 = `rgb(${cor1.join(',')})`;
         const rgb2 = `rgb(${cor2.join(',')})`;
 
-        // Movimento da direita para a esquerda
-        offset -= 0.3; // Velocidade do movimento (ajuste conforme necessário)
-        if (offset < -100) offset = 100; // Reseta para a direita
+        offset -= 0.3;
+        if (offset < -100) offset = 100;
 
-        // Calcula posições dinâmicas
         let pos1 = offset;
-        let pos2 = offset + 70.7; // Diferença de 70.7% (82.4% - 11.7%) para manter a estrutura
+        let pos2 = offset + 70.7;
 
-        // Aplica o gradiente
         section.style.backgroundImage = `linear-gradient(150.4deg, ${rgb1} ${pos1}%, ${rgb2} ${pos2}%)`;
 
-        // Continua a animação
         requestAnimationFrame(updateGradient);
     }
 
-    // Inicia a animação
     updateGradient();
+});
+
+// Desbloqueio de Áudio
+document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('click', unlockAudio);
+    document.addEventListener('touchstart', unlockAudio);
+
+    const audioPrompt = document.createElement('div');
+    audioPrompt.innerText = 'Clique ou toque na tela para ativar o som!';
+    audioPrompt.style.position = 'fixed';
+    audioPrompt.style.top = '10px';
+    audioPrompt.style.left = '50%';
+    audioPrompt.style.transform = 'translateX(-50%)';
+    audioPrompt.style.background = 'rgba(0, 0, 0, 0.7)';
+    audioPrompt.style.color = '#fff';
+    audioPrompt.style.padding = '10px';
+    audioPrompt.style.zIndex = '10000';
+    document.body.appendChild(audioPrompt);
+
+    function removePrompt() {
+        if (isAudioUnlocked) {
+            audioPrompt.remove();
+            document.removeEventListener('click', removePrompt);
+            document.removeEventListener('touchstart', removePrompt);
+        }
+    }
+    document.addEventListener('click', removePrompt);
+    document.addEventListener('touchstart', removePrompt);
 });
