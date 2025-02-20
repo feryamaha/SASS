@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     spheres.forEach(sphere => {
         sphere.element.style.backgroundColor = sphere.color;
-        sphere.element.style.cursor = 'pointer'; // Para desktop
+        sphere.element.style.cursor = 'pointer';
         sphere.element.style.pointerEvents = 'auto';
         sphere.element.style.position = 'absolute';
         sphere.element.style.zIndex = '1000';
@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sphere2.element.style.backgroundColor = sphere2.color;
     }
 
-    // Função para iniciar o arrastar (mouse ou toque)
+    // Funções de arrastar
     function startDragging(sphere, x, y) {
         sphere.isDragging = true;
         sphere.isPaused = true;
@@ -344,7 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sphere.element.style.backgroundColor = sphere.color;
     }
 
-    // Função para mover enquanto arrasta (mouse ou toque)
     function moveDragging(sphere, x, y) {
         if (sphere.isDragging) {
             const deltaX = x - sphere.lastX;
@@ -358,7 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Função para finalizar o arrastar (mouse ou toque)
     function stopDragging(sphere, x, y) {
         if (sphere.isDragging) {
             sphere.isDragging = false;
@@ -379,14 +377,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Eventos de mouse
+    // Eventos para cada esfera
     spheres.forEach(sphere => {
+        // Eventos de mouse
         sphere.element.addEventListener('mousedown', (e) => {
-            e.preventDefault(); // Evitar comportamento padrão
+            e.preventDefault();
             startDragging(sphere, e.clientX, e.clientY);
         });
 
         document.addEventListener('mousemove', (e) => {
+            e.preventDefault();
             moveDragging(sphere, e.clientX, e.clientY);
         });
 
@@ -396,25 +396,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Eventos de toque
         sphere.element.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Evitar scroll ou zoom
+            e.preventDefault();
             const touch = e.touches[0];
             startDragging(sphere, touch.clientX, touch.clientY);
         });
 
-        document.addEventListener('touchmove', (e) => {
+        sphere.element.addEventListener('touchmove', (e) => {
             e.preventDefault();
             const touch = e.touches[0];
             moveDragging(sphere, touch.clientX, touch.clientY);
         });
 
-        document.addEventListener('touchend', (e) => {
+        sphere.element.addEventListener('touchend', (e) => {
             e.preventDefault();
             const touch = e.changedTouches[0];
             stopDragging(sphere, touch.clientX, touch.clientY);
         });
     });
 
-    // Retomar movimento ao clicar na tela (mouse ou toque)
+    // Retomar movimento ao clicar/tocar fora das esferas
     document.addEventListener('click', (e) => {
         if (!e.target.classList.contains('circle')) {
             spheres.forEach(sphere => {
