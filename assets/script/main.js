@@ -1,3 +1,30 @@
+// Definindo as cores uma única vez no topo do arquivo
+const colors = {
+    blackToGray: ['#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#fff'],
+    red: ['#8B0000', '#FF0000', '#FF6347', '#FF7F7F', '#FFA07A'],
+    blue: ['#00008B', '#0000FF', '#1E90FF', '#87CEFA', '#ADD8E6'],
+    green: ['#006400', '#00FF00', '#32CD32', '#98FB98', '#90EE90'],
+    yellow: ['#FFD700', '#FFFF00', '#FFFFE0', '#FFFACD', '#FAFAD2'],
+    violet: ['#4B0082', '#8A2BE2', '#9370DB', '#BA55D3', '#DDA0DD']
+};
+
+// Função para converter hex para RGB array
+function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return [r, g, b];
+}
+
+// Função global para escolher uma cor aleatória (suporta hex e RGB)
+function getRandomColor(format = 'hex') {
+    const colorGroups = Object.values(colors);
+    const randomGroup = colorGroups[Math.floor(Math.random() * colorGroups.length)];
+    const randomColor = randomGroup[Math.floor(Math.random() * randomGroup.length)];
+    return format === 'rgb' ? hexToRgb(randomColor) : randomColor;
+}
+
+// Menu toggle (inalterado)
 document.addEventListener('DOMContentLoaded', function () {
     const menuSquare = document.getElementById('menu-square');
     const menu = document.getElementById('menu-toggle');
@@ -35,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-
+// Efeito de pulsação (inalterado)
 function pulseEffect() {
     const elements = document.querySelectorAll('.box-content-img-home, .box-content-img-2');
 
@@ -66,6 +93,8 @@ function pulseEffect() {
 }
 
 document.addEventListener('DOMContentLoaded', pulseEffect);
+
+// Efeito de onda (inalterado)
 function waveEffect() {
     const elements = document.querySelectorAll('.box-content-img-3, .box-content-img-4, .box-content-img-5, .box-content-img-6');
     const amplitude = 20; // Amplitude do movimento vertical
@@ -85,25 +114,13 @@ function waveEffect() {
 }
 
 document.addEventListener('DOMContentLoaded', waveEffect);
+
+// Transição de cor por letra (otimizado)
 function colorTransitionByLetter() {
     const textElements = document.querySelectorAll('.s-hero .box-text h2, .s-hero .box-text p, .wrapper-box h2, .wrapper-box p, .menu a');
-    const colors = [
-        // Black to Gray
-        '#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#fff',
-        // Red
-        '#8B0000', '#FF0000', '#FF6347', '#FF7F7F', '#FFA07A',
-        // Blue
-        '#00008B', '#0000FF', '#1E90FF', '#87CEFA', '#ADD8E6',
-        // Green
-        '#006400', '#00FF00', '#32CD32', '#98FB98', '#90EE90',
-        // Yellow
-        '#FFD700', '#FFFF00', '#FFFFE0', '#FFFACD', '#FAFAD2',
-        // Violet
-        '#4B0082', '#8A2BE2', '#9370DB', '#BA55D3', '#DDA0DD'
-    ];
 
-    function getRandomColor() {
-        return colors[Math.floor(Math.random() * colors.length)];
+    function getRandomColorLocal() {
+        return getRandomColor('hex'); // Usando a função global
     }
 
     textElements.forEach(element => {
@@ -112,14 +129,14 @@ function colorTransitionByLetter() {
 
         let html = '';
         letters.forEach((letter, index) => {
-            html += `<span style="color: ${getRandomColor()}; transition: color 0.8s ease;">${letter}</span>`;
+            html += `<span style="color: ${getRandomColorLocal()}; transition: color 0.8s ease;">${letter}</span>`;
         });
 
         let counter = 0;
         const updateColor = setInterval(() => {
             const spans = element.querySelectorAll('span');
             if (counter < spans.length) {
-                spans[counter].style.color = getRandomColor();
+                spans[counter].style.color = getRandomColorLocal();
                 counter++;
             } else {
                 counter = 0; // Reset counter to start over
@@ -131,6 +148,8 @@ function colorTransitionByLetter() {
 }
 
 document.addEventListener('DOMContentLoaded', colorTransitionByLetter);
+
+// Cursor personalizado (otimizado)
 function customCursor() {
     if (!document.body) {
         console.error('Erro: document.body não está disponível');
@@ -142,26 +161,13 @@ function customCursor() {
     const trailLength = 20; // Aumentei o rastro de 10 para 20 (ajuste aqui)
     let positions = [];
 
-    // Lista de cores fornecidas (convertidas de Sass para array JS)
-    const colors = [
-        '#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#ffffff', // Grays
-        '#8B0000', '#FF0000', '#FF6347', '#FF7F7F', '#FFA07A', // Reds
-        '#00008B', '#0000FF', '#1E90FF', '#87CEFA', '#ADD8E6', // Blues
-        '#006400', '#00FF00', '#32CD32', '#98FB98', '#90EE90', // Greens
-        '#FFD700', '#FFFF00', '#FFFFE0', '#FFFACD', '#FAFAD2', // Yellows
-        '#4B0082', '#8A2BE2', '#9370DB', '#BA55D3', '#DDA0DD'  // Violets
-    ];
-
-    // Função para escolher uma cor aleatória
-    const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
-
     // Estilização do cursor principal
     Object.assign(cursor.style, {
         width: '20px',
         height: '20px',
         borderRadius: '50%',
-        border: `2px solid ${getRandomColor()}`, // Cor inicial aleatória
-        backgroundColor: getRandomColor(), // Cor inicial aleatória
+        border: `2px solid ${getRandomColor('hex')}`, // Usando a função global
+        backgroundColor: getRandomColor('hex'), // Usando a função global
         position: 'fixed',
         pointerEvents: 'none',
         zIndex: '9999',
@@ -204,7 +210,7 @@ function customCursor() {
         cursor.style.transform = `translate(${x}px, ${y}px)`;
 
         // Muda a cor do cursor aleatoriamente
-        const newColor = getRandomColor();
+        const newColor = getRandomColor('hex'); // Usando a função global
         cursor.style.border = `2px solid ${newColor}`;
         cursor.style.backgroundColor = newColor;
 
@@ -234,10 +240,26 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     });
 }
 
+
+
+
+////////////////////////////////////////////
+// Esferas animadas (com formas geométricas, sólidos de Platão, tamanho responsivo e repulsão fluida)
 document.addEventListener('DOMContentLoaded', () => {
     // Configurações iniciais
-    const gridContainer = document.querySelector('.grid-container');
-    const circleRadius = 64; // Metade de 8rem (128px)
+    const defaultRadius = 64; // Tamanho padrão para desktop (128px de diâmetro)
+    const mobileRadius = 32; // Tamanho reduzido para mobile (64px de diâmetro)
+    const mobileBreakpoint = 768; // Limite para tablets/celulares
+    const repulsionForce = 2; // Força de repulsão ajustada
+    const maxSpeed = 10; // Velocidade máxima
+    const friction = 0.995; // Atrito muito leve para movimento contínuo
+
+    // Função para determinar o raio com base na largura da tela
+    function getCircleRadius() {
+        return window.innerWidth <= mobileBreakpoint ? mobileRadius : defaultRadius;
+    }
+
+    let circleRadius = getCircleRadius(); // Raio inicial
 
     // Lista de esferas com IDs fixos
     const circles = [
@@ -253,55 +275,101 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('c10')
     ];
 
-    // Lista de cores
-    const colors = [
-        '#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#ffffff',
-        '#8B0000', '#FF0000', '#FF6347', '#FF7F7F', '#FFA07A',
-        '#00008B', '#0000FF', '#1E90FF', '#87CEFA', '#ADD8E6',
-        '#006400', '#00FF00', '#32CD32', '#98FB98', '#90EE90',
-        '#FFD700', '#FFFF00', '#FFFFE0', '#FFFACD', '#FAFAD2',
-        '#4B0082', '#8A2BE2', '#9370DB', '#BA55D3', '#DDA0DD'
-    ];
+    // Verificar se as esferas foram encontradas
+    circles.forEach((circle, index) => {
+        if (!circle) {
+            console.error(`Esfera c${index + 1} não encontrada no DOM!`);
+        } else {
+            console.log(`Esfera c${index + 1} encontrada:`, circle);
+        }
+    });
 
     // Funções utilitárias
-    const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
+    const getRandomColorLocal = () => getRandomColor('hex');
     const getRandomVelocity = () => (Math.random() - 0.5) * 4;
 
-    // Inicializar esferas
-    const spheres = circles.map(circle => ({
-        element: circle,
-        x: 0, // Inicializado dinamicamente depois
-        y: 0,
-        vx: getRandomVelocity(),
-        vy: getRandomVelocity(),
-        color: getRandomColor(),
-        isDragging: false,
-        lastX: 0,
-        lastY: 0,
-        lastTime: 0,
-        isPaused: false
-    }));
+    // Lista de formas geométricas e sólidos de Platão com estilos CSS
+    const shapes = [
+        { name: 'circle', style: { borderRadius: '50%', clipPath: null } }, // Círculo
+        { name: 'square', style: { borderRadius: '0', clipPath: null } }, // Quadrado
+        { name: 'triangle', style: { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: '0' } }, // Triângulo
+        { name: 'diamond', style: { clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', borderRadius: '0' } }, // Losango
+        { name: 'ellipse', style: { borderRadius: '50% / 75%', clipPath: null } }, // Elipse
+        { name: 'trapezoid', style: { clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)', borderRadius: '0' } }, // Trapézio
+        { name: 'pentagon', style: { clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)', borderRadius: '0' } }, // Pentágono
+        // Sólidos de Platão
+        { name: 'tetrahedron', style: { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: '0' } }, // Tetraedro (triângulo base)
+        { name: 'cube', style: { borderRadius: '0', clipPath: null } }, // Cubo (igual ao quadrado em 2D)
+        { name: 'octahedron', style: { clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', borderRadius: '0' } }, // Octaedro (losango em projeção)
+        { name: 'dodecahedron', style: { clipPath: 'polygon(50% 0%, 90% 38%, 72% 100%, 28% 100%, 10% 38%)', borderRadius: '0' } }, // Dodecaedro (pentágono aproximado)
+        { name: 'icosahedron', style: { clipPath: 'polygon(50% 0%, 85% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 15% 30%)', borderRadius: '0' } } // Icosaedro (aproximação hexagonal)
+    ];
 
-    // Função para obter limites dinâmicos
-    function getContainerBounds() {
-        const rect = gridContainer.getBoundingClientRect();
-        const maxWidth = Math.max(0, rect.width - circleRadius * 2);
-        const maxHeight = Math.max(0, rect.height - circleRadius * 2);
-        return { maxWidth, maxHeight };
+    // Função para escolher uma forma aleatória
+    function getRandomShape() {
+        return shapes[Math.floor(Math.random() * shapes.length)];
     }
 
-    // Inicializar posições iniciais
+    // Inicializar esferas
+    const spheres = circles.map(circle => {
+        if (!circle) return null; // Evitar erros com elementos nulos
+        const initialShape = shapes[0]; // Começa como círculo
+        return {
+            element: circle,
+            x: 0,
+            y: 0,
+            vx: getRandomVelocity(),
+            vy: getRandomVelocity(),
+            color: getRandomColorLocal(),
+            shape: initialShape,
+            isDragging: false,
+            lastX: 0,
+            lastY: 0,
+            lastTime: 0,
+            isPaused: false
+        };
+    }).filter(sphere => sphere !== null);
+
+    if (spheres.length === 0) {
+        console.error('Nenhuma esfera válida foi inicializada! Verifique os IDs no HTML.');
+        return;
+    }
+
+    // Função para aplicar a forma e tamanho ao elemento
+    function applyShapeAndSize(sphere) {
+        const { style } = sphere.shape;
+        sphere.element.style.borderRadius = style.borderRadius;
+        sphere.element.style.clipPath = style.clipPath;
+        const size = circleRadius * 2;
+        sphere.element.style.width = `${size}px`;
+        sphere.element.style.height = `${size}px`;
+    }
+
+    // Inicializar posições iniciais aleatórias
     spheres.forEach(sphere => {
         const bounds = getContainerBounds();
         sphere.x = Math.random() * bounds.maxWidth;
         sphere.y = Math.random() * bounds.maxHeight;
+        sphere.element.style.position = 'fixed';
+        sphere.element.style.left = `${sphere.x}px`;
+        sphere.element.style.top = `${sphere.y}px`;
         sphere.element.style.backgroundColor = sphere.color;
+        applyShapeAndSize(sphere); // Aplicar forma e tamanho inicial
+        sphere.element.style.zIndex = '9997';
+        sphere.element.style.opacity = '1';
+        sphere.element.style.display = 'block';
         sphere.element.style.cursor = 'pointer';
         sphere.element.style.pointerEvents = 'auto';
-        sphere.element.style.position = 'absolute';
-        sphere.element.style.zIndex = '1000';
-        sphere.element.style.transform = `translate(${sphere.x}px, ${sphere.y}px)`;
+        console.log(`Esfera ${sphere.element.id} posicionada em: left=${sphere.x}px, top=${sphere.y}px, color=${sphere.color}, shape=${sphere.shape.name}`);
     });
+
+    // Função para obter limites dinâmicos do body
+    function getContainerBounds() {
+        circleRadius = getCircleRadius(); // Atualizar raio dinamicamente
+        const maxWidth = Math.max(0, window.innerWidth - circleRadius * 2);
+        const maxHeight = Math.max(0, window.innerHeight - circleRadius * 2);
+        return { maxWidth, maxHeight };
+    }
 
     // Função de colisão
     function checkCollision(sphere1, sphere2) {
@@ -311,29 +379,64 @@ document.addEventListener('DOMContentLoaded', () => {
         return distance < circleRadius * 2;
     }
 
-    // Resolver colisão
+    // Resolver colisão (com troca de cor, forma e repulsão fluida)
     function resolveCollision(sphere1, sphere2) {
         const dx = sphere2.x - sphere1.x;
         const dy = sphere2.y - sphere1.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
+        if (distance === 0) return; // Evitar divisão por zero
+
         const nx = dx / distance;
         const ny = dy / distance;
 
+        // Física de colisão (rebote)
         const relativeVelocityX = sphere2.vx - sphere1.vx;
         const relativeVelocityY = sphere2.vy - sphere1.vy;
         const impulse = 2 * (relativeVelocityX * nx + relativeVelocityY * ny) / 2;
 
-        sphere1.vx += impulse * nx;
-        sphere1.vy += impulse * ny;
-        sphere2.vx -= impulse * nx;
-        sphere2.vy -= impulse * ny;
+        sphere1.vx += impulse * nx * 0.9; // Rebote quase total
+        sphere1.vy += impulse * ny * 0.9;
+        sphere2.vx -= impulse * nx * 0.9;
+        sphere2.vy -= impulse * ny * 0.9;
 
+        // Força de repulsão suave
+        const repulsionX = nx * repulsionForce;
+        const repulsionY = ny * repulsionForce;
+        sphere1.vx -= repulsionX;
+        sphere1.vy -= repulsionY;
+        sphere2.vx += repulsionX;
+        sphere2.vy += repulsionY;
+
+        // Redução mínima de velocidade após colisão
+        sphere1.vx *= 0.95; // Redução de apenas 5%
+        sphere1.vy *= 0.95;
+        sphere2.vx *= 0.95;
+        sphere2.vy *= 0.95;
+
+        // Limitar velocidade máxima
+        sphere1.vx = Math.max(-maxSpeed, Math.min(maxSpeed, sphere1.vx));
+        sphere1.vy = Math.max(-maxSpeed, Math.min(maxSpeed, sphere1.vy));
+        sphere2.vx = Math.max(-maxSpeed, Math.min(maxSpeed, sphere2.vx));
+        sphere2.vy = Math.max(-maxSpeed, Math.min(maxSpeed, sphere2.vy));
+
+        // Troca de cor
         const tempColor = sphere1.color;
         sphere1.color = sphere2.color;
         sphere2.color = tempColor;
+
+        // Troca de forma
+        const tempShape = sphere1.shape;
+        sphere1.shape = getRandomShape();
+        sphere2.shape = getRandomShape();
+
+        // Aplicar estilos
         sphere1.element.style.backgroundColor = sphere1.color;
         sphere2.element.style.backgroundColor = sphere2.color;
+        applyShapeAndSize(sphere1);
+        applyShapeAndSize(sphere2);
+
+        console.log(`Colisão: ${sphere1.element.id} virou ${sphere1.shape.name}, ${sphere2.element.id} virou ${sphere2.shape.name}`);
     }
 
     // Funções de arrastar
@@ -343,20 +446,15 @@ document.addEventListener('DOMContentLoaded', () => {
         sphere.lastX = x;
         sphere.lastY = y;
         sphere.lastTime = performance.now();
-        sphere.color = getRandomColor();
+        sphere.color = getRandomColorLocal();
         sphere.element.style.backgroundColor = sphere.color;
     }
 
     function moveDragging(sphere, x, y) {
         if (sphere.isDragging) {
             const bounds = getContainerBounds();
-            const rect = gridContainer.getBoundingClientRect();
-            const offsetX = x - rect.left;
-            const offsetY = y - rect.top;
-
-            sphere.x = Math.max(0, Math.min(offsetX - circleRadius, bounds.maxWidth));
-            sphere.y = Math.max(0, Math.min(offsetY - circleRadius, bounds.maxHeight));
-
+            sphere.x = Math.max(0, Math.min(x - circleRadius, bounds.maxWidth));
+            sphere.y = Math.max(0, Math.min(y - circleRadius, bounds.maxHeight));
             sphere.lastX = x;
             sphere.lastY = y;
         }
@@ -372,11 +470,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const deltaX = x - sphere.lastX;
             const deltaY = y - sphere.lastY;
 
-            sphere.vx = (deltaX / timeDelta) * 0.05;
-            sphere.vy = (deltaY / timeDelta) * 0.05;
-
-            sphere.vx = Math.max(-10, Math.min(10, sphere.vx));
-            sphere.vy = Math.max(-10, Math.min(10, sphere.vy));
+            sphere.vx = Math.max(-maxSpeed, Math.min(maxSpeed, (deltaX / timeDelta) * 0.05));
+            sphere.vy = Math.max(-maxSpeed, Math.min(maxSpeed, (deltaY / timeDelta) * 0.05));
 
             sphere.lastTime = 0;
         }
@@ -446,6 +541,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Listener para redimensionamento da janela
+    window.addEventListener('resize', () => {
+        circleRadius = getCircleRadius(); // Atualizar raio ao redimensionar
+        spheres.forEach(sphere => {
+            applyShapeAndSize(sphere); // Reaplicar tamanho responsivo
+        });
+    });
+
     // Função de animação
     function animate() {
         const bounds = getContainerBounds();
@@ -455,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 sphere.x += sphere.vx;
                 sphere.y += sphere.vy;
 
-                // Colisão com as bordas do grid-container
+                // Colisão com as bordas do body
                 if (sphere.x <= 0) {
                     sphere.x = 0;
                     sphere.vx = -sphere.vx * 0.8;
@@ -470,13 +573,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     sphere.y = bounds.maxHeight;
                     sphere.vy = -sphere.vy * 0.8;
                 }
+
+                // Atrito muito leve para desaceleração natural
+                sphere.vx *= friction;
+                sphere.vy *= friction;
+
+                // Limitar velocidade máxima
+                sphere.vx = Math.max(-maxSpeed, Math.min(maxSpeed, sphere.vx));
+                sphere.vy = Math.max(-maxSpeed, Math.min(maxSpeed, sphere.vy));
             }
 
-            // Usar apenas transform para posicionamento
-            sphere.element.style.transform = `translate(${sphere.x}px, ${sphere.y}px)`;
+            sphere.element.style.left = `${sphere.x}px`;
+            sphere.element.style.top = `${sphere.y}px`;
         });
 
-        // Verificar colisões entre esferas
         for (let i = 0; i < spheres.length; i++) {
             for (let j = i + 1; j < spheres.length; j++) {
                 if (checkCollision(spheres[i], spheres[j])) {
@@ -488,8 +598,84 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(animate);
     }
 
-    // Depuração
     console.log('Initial bounds:', getContainerBounds());
+    console.log('Esferas inicializadas:', spheres);
 
     animate();
+});
+
+
+
+
+
+
+
+////////////////////////////////////////////
+// Gradiente animado (otimizado)
+document.addEventListener('DOMContentLoaded', () => {
+    const section = document.querySelector('.sh-4');
+    if (!section) {
+        console.error('Elemento .sh-4 não encontrado!');
+        return;
+    }
+
+    // Função para interpolar entre duas cores (mantida como no original)
+    function calcular(cor1, cor2, progresso) {
+        const ret = [];
+        for (let i = 0; i < cor1.length; i++) {
+            ret[i] = Math.round(cor2[i] * progresso + cor1[i] * (1 - progresso));
+        }
+        return ret;
+    }
+
+    // Função local para manter compatibilidade com calcular
+    function getRandomColorLocal() {
+        return getRandomColor('rgb'); // Usando a função global em formato RGB
+    }
+
+    // Cores iniciais em RGB (baseadas no seu CSS original)
+    let origem1 = hexToRgb('#4BFFED'); // rgba(75, 255, 237, 1)
+    let origem2 = hexToRgb('#202AEB'); // rgba(32, 42, 235, 1)
+    let alvo1 = getRandomColorLocal(); // Próxima cor para camada 1
+    let alvo2 = getRandomColorLocal(); // Próxima cor para camada 2
+    let progresso = 0; // Progresso da transição
+    let offset = 100; // Posição inicial para movimento (direita)
+
+    // Função para atualizar o gradiente
+    function updateGradient() {
+        // Atualiza o progresso da transição de cores
+        progresso += 0.005; // Ajuste para mais lento ou rápido
+        if (progresso > 1) {
+            progresso = 0;
+            origem1 = alvo1;
+            origem2 = alvo2;
+            alvo1 = getRandomColorLocal();
+            alvo2 = getRandomColorLocal();
+        }
+
+        // Calcula as cores atuais
+        const cor1 = calcular(origem1, alvo1, progresso);
+        const cor2 = calcular(origem2, alvo2, progresso);
+
+        // Converte para formato RGB string
+        const rgb1 = `rgb(${cor1.join(',')})`;
+        const rgb2 = `rgb(${cor2.join(',')})`;
+
+        // Movimento da direita para a esquerda
+        offset -= 0.3; // Velocidade do movimento (ajuste conforme necessário)
+        if (offset < -100) offset = 100; // Reseta para a direita
+
+        // Calcula posições dinâmicas
+        let pos1 = offset;
+        let pos2 = offset + 70.7; // Diferença de 70.7% (82.4% - 11.7%) para manter a estrutura
+
+        // Aplica o gradiente
+        section.style.backgroundImage = `linear-gradient(150.4deg, ${rgb1} ${pos1}%, ${rgb2} ${pos2}%)`;
+
+        // Continua a animação
+        requestAnimationFrame(updateGradient);
+    }
+
+    // Inicia a animação
+    updateGradient();
 });

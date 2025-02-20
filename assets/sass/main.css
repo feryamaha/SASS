@@ -151,14 +151,7 @@ header a:hover {
 
 .sh-4 {
   height: 386px;
-  background-image: url(../img/bg-shero7.webp);
-  background-size: cover;
-  background-position: left center;
-  background-repeat: no-repeat;
   position: relative;
-  overflow: hidden;
-  z-index: 10;
-  padding-bottom: 400px;
 }
 
 .sh-4 .grid-container {
