@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+
 function pulseEffect() {
     const elements = document.querySelectorAll('.box-content-img-home, .box-content-img-2');
 
@@ -65,7 +66,6 @@ function pulseEffect() {
 }
 
 document.addEventListener('DOMContentLoaded', pulseEffect);
-
 function waveEffect() {
     const elements = document.querySelectorAll('.box-content-img-3, .box-content-img-4, .box-content-img-5, .box-content-img-6');
     const amplitude = 20; // Amplitude do movimento vertical
@@ -85,8 +85,6 @@ function waveEffect() {
 }
 
 document.addEventListener('DOMContentLoaded', waveEffect);
-
-
 function colorTransitionByLetter() {
     const textElements = document.querySelectorAll('.s-hero .box-text h2, .s-hero .box-text p, .wrapper-box h2, .wrapper-box p, .menu a');
     const colors = [
@@ -133,7 +131,6 @@ function colorTransitionByLetter() {
 }
 
 document.addEventListener('DOMContentLoaded', colorTransitionByLetter);
-
 function customCursor() {
     if (!document.body) {
         console.error('Erro: document.body não está disponível');
@@ -237,16 +234,10 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     });
 }
 
-
-
-
-
 document.addEventListener('DOMContentLoaded', () => {
     // Configurações iniciais
     const gridContainer = document.querySelector('.grid-container');
     const circleRadius = 64; // Metade de 8rem (128px)
-    const maxWidth = gridContainer.offsetWidth - circleRadius * 2;
-    const maxHeight = gridContainer.offsetHeight - circleRadius * 2;
 
     // Lista de esferas com IDs fixos
     const circles = [
@@ -279,8 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializar esferas
     const spheres = circles.map(circle => ({
         element: circle,
-        x: Math.random() * maxWidth,
-        y: Math.random() * maxHeight,
+        x: 0, // Inicializado dinamicamente depois
+        y: 0,
         vx: getRandomVelocity(),
         vy: getRandomVelocity(),
         color: getRandomColor(),
@@ -291,7 +282,19 @@ document.addEventListener('DOMContentLoaded', () => {
         isPaused: false
     }));
 
+    // Função para obter limites dinâmicos
+    function getContainerBounds() {
+        const rect = gridContainer.getBoundingClientRect();
+        const maxWidth = Math.max(0, rect.width - circleRadius * 2);
+        const maxHeight = Math.max(0, rect.height - circleRadius * 2);
+        return { maxWidth, maxHeight };
+    }
+
+    // Inicializar posições iniciais
     spheres.forEach(sphere => {
+        const bounds = getContainerBounds();
+        sphere.x = Math.random() * bounds.maxWidth;
+        sphere.y = Math.random() * bounds.maxHeight;
         sphere.element.style.backgroundColor = sphere.color;
         sphere.element.style.cursor = 'pointer';
         sphere.element.style.pointerEvents = 'auto';
@@ -346,11 +349,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function moveDragging(sphere, x, y) {
         if (sphere.isDragging) {
-            const deltaX = x - sphere.lastX;
-            const deltaY = y - sphere.lastY;
+            const bounds = getContainerBounds();
+            const rect = gridContainer.getBoundingClientRect();
+            const offsetX = x - rect.left;
+            const offsetY = y - rect.top;
 
-            sphere.x = Math.max(0, Math.min(sphere.x + deltaX, maxWidth));
-            sphere.y = Math.max(0, Math.min(sphere.y + deltaY, maxHeight));
+            sphere.x = Math.max(0, Math.min(offsetX - circleRadius, bounds.maxWidth));
+            sphere.y = Math.max(0, Math.min(offsetY - circleRadius, bounds.maxHeight));
 
             sphere.lastX = x;
             sphere.lastY = y;
@@ -379,7 +384,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Eventos para cada esfera
     spheres.forEach(sphere => {
-        // Eventos de mouse
         sphere.element.addEventListener('mousedown', (e) => {
             e.preventDefault();
             startDragging(sphere, e.clientX, e.clientY);
@@ -394,7 +398,6 @@ document.addEventListener('DOMContentLoaded', () => {
             stopDragging(sphere, e.clientX, e.clientY);
         });
 
-        // Eventos de toque
         sphere.element.addEventListener('touchstart', (e) => {
             e.preventDefault();
             const touch = e.touches[0];
@@ -445,6 +448,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função de animação
     function animate() {
+        const bounds = getContainerBounds();
+
         spheres.forEach(sphere => {
             if (!sphere.isDragging && !sphere.isPaused) {
                 sphere.x += sphere.vx;
@@ -454,19 +459,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (sphere.x <= 0) {
                     sphere.x = 0;
                     sphere.vx = -sphere.vx * 0.8;
-                } else if (sphere.x >= maxWidth) {
-                    sphere.x = maxWidth;
+                } else if (sphere.x >= bounds.maxWidth) {
+                    sphere.x = bounds.maxWidth;
                     sphere.vx = -sphere.vx * 0.8;
                 }
                 if (sphere.y <= 0) {
                     sphere.y = 0;
                     sphere.vy = -sphere.vy * 0.8;
-                } else if (sphere.y >= maxHeight) {
-                    sphere.y = maxHeight;
+                } else if (sphere.y >= bounds.maxHeight) {
+                    sphere.y = bounds.maxHeight;
                     sphere.vy = -sphere.vy * 0.8;
                 }
             }
 
+            // Usar apenas transform para posicionamento
             sphere.element.style.transform = `translate(${sphere.x}px, ${sphere.y}px)`;
         });
 
@@ -483,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Depuração
-    console.log('maxWidth:', maxWidth, 'maxHeight:', maxHeight);
+    console.log('Initial bounds:', getContainerBounds());
 
     animate();
 });
